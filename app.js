@@ -1669,15 +1669,7 @@ function renderStageDetail() {
     </div>
     <div class="stage-detail-grid">
       <div><strong>阶段门必做检查</strong>${stage.checks.map((check, index) => `<button class="gate-check ${record.completedChecks.includes(index) ? "done" : ""}" data-gate-check="${index}"><i>${record.completedChecks.includes(index) ? "✓" : ""}</i><span>${escapeHtml(check)}</span></button>`).join("")}</div>
-      <div><strong>受控输出文件</strong>${applicableOutputs.map((output, index) => {
-        const docStatus = stageDocumentStatus(project.id, stage.code, index, output);
-        return `
-        <div class="output-row ${record.completedOutputs.includes(index) ? "done" : ""}">
-          <button class="output-item" data-output-check="${index}"><span>${escapeHtml(output)}</span><small>${record.completedOutputs.includes(index) ? "已具备" : "待建立"} · ${docStatus.label}</small></button>
-          <button class="template-button ${docStatus.className}" data-template-output="${index}">填写</button>
-        </div>
-      `;
-      }).join("")}</div>
+      <div><strong>受控输出文件</strong>${renderStageOutputGroups(project, stage, applicableOutputs, record)}</div>
       <div><strong>当前已有资料</strong>${files.length ? files.map(file => `<button class="stage-file" data-open-file="${file.id}"><span>${escapeHtml(file.title)}</span><small>${escapeHtml(file.extension || file.type.toUpperCase())}</small></button>`).join("") : `<span class="empty-copy">尚未导入本阶段资料</span>`}</div>
     </div>
     <div class="template-pack">
@@ -1710,6 +1702,42 @@ function renderStageDetail() {
       ` : `<div class="gate-history">只有当前阶段可以进行放行评审；历史和后续阶段仍可补充检查及文件。</div>`}
     </div>
   `;
+}
+
+function renderOutputRow(project, stage, record, output, index) {
+  const docStatus = stageDocumentStatus(project.id, stage.code, index, output);
+  return `
+    <div class="output-row ${record.completedOutputs.includes(index) ? "done" : ""}">
+      <button class="output-item" data-output-check="${index}">
+        <span>${escapeHtml(output)}</span>
+        <small>${record.completedOutputs.includes(index) ? "已具备" : "待建立"}</small>
+      </button>
+      <span class="output-status-badge ${docStatus.className}">${docStatus.label}</span>
+      <button class="template-button ${docStatus.className}" data-template-output="${index}">填写</button>
+    </div>
+  `;
+}
+
+function renderStageOutputGroups(project, stage, outputs, record) {
+  const groups = [
+    { key: "empty", label: "未填写", items: [] },
+    { key: "draft", label: "草稿", items: [] },
+    { key: "complete", label: "已完成", items: [] }
+  ];
+  outputs.forEach((output, index) => {
+    const docStatus = stageDocumentStatus(project.id, stage.code, index, output);
+    const group = groups.find(item => item.key === docStatus.className) || groups[0];
+    group.items.push({ output, index });
+  });
+  return groups.filter(group => group.items.length).map(group => `
+    <div class="output-group ${group.key}">
+      <div class="output-group-title">
+        <span>${group.label}</span>
+        <small>${group.items.length}项</small>
+      </div>
+      ${group.items.map(item => renderOutputRow(project, stage, record, item.output, item.index)).join("")}
+    </div>
+  `).join("");
 }
 
 function toggleStageItem(kind, index) {
