@@ -165,7 +165,7 @@ const projectProfiles = {
 };
 
 const seedData = {
-  processModelVersion: 8,
+  processModelVersion: 9,
   projects: [
     { id: "NPD25024", name: "再生碳纤维锁鞋鞋底", projectType: "npd", standardProfile: "general", stage: "G4 样件与设计验证", stageCode: "G4", stageNote: "失效分析与复测", progress: 61, status: "attention", deadline: "6月30日", next: "确认静压力失效原因并安排复测" },
     { id: "NPD25047", name: "匹克球拍面板", projectType: "npd", standardProfile: "general", stage: "G4 样件与设计验证", stageCode: "G4", stageNote: "单片成型验证", progress: 67, status: "attention", deadline: "6月20日", next: "验证重量、厚度和表面一致性" },
@@ -200,6 +200,7 @@ const seedData = {
     { id: "TL-4", projectId: "NPD26003-A", date: "4月30日", title: "完成初步评估报告", text: "面板单体未达到要求；CF/PP-UD + rCF/PP面层方向可继续。" }
   ],
   stageRecords: {},
+  stageDocuments: [],
   stagePredictions: [
     {
       id: "PR-CF-20260616-01",
@@ -243,6 +244,7 @@ let deferredInstallPrompt = null;
 let currentView = "dashboard";
 let selectedProjectId = state.projects[0]?.id || "NPD26003-A";
 let selectedStageCode = state.projects[0]?.stageCode || "G0";
+let selectedTemplateDocumentId = "";
 let projectFilter = "all";
 let inboxFilter = "pending";
 let workFilter = "all";
@@ -296,6 +298,23 @@ function normalizeState(saved) {
     projectId: item.projectId || "NPD26003-A"
   }));
   merged.stageRecords = merged.stageRecords || {};
+  merged.stageDocuments = (merged.stageDocuments || []).map(item => ({
+    id: item.id || `DOC-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+    projectId: item.projectId || "NPD26003-A",
+    stageCode: item.stageCode || "G0",
+    outputName: item.outputName || item.title || "阶段输出文件",
+    outputIndex: Number.isFinite(Number(item.outputIndex)) ? Number(item.outputIndex) : 0,
+    title: item.title || item.outputName || "阶段输出文件",
+    status: item.status === "complete" ? "complete" : "draft",
+    fields: item.fields || {},
+    unresolved: item.unresolved || "",
+    conclusion: item.conclusion || "",
+    owner: item.owner || "张家桤",
+    version: item.version || "V0.1",
+    createdAt: item.createdAt || new Date().toISOString(),
+    updatedAt: item.updatedAt || "",
+    completedAt: item.completedAt || ""
+  }));
   merged.stagePredictions = (merged.stagePredictions || []).map(item => ({
     id: item.id || `PR-${Date.now()}-${Math.random().toString(16).slice(2)}`,
     projectId: item.projectId || "NPD26003-A",
@@ -359,7 +378,7 @@ function normalizeState(saved) {
       ...merged.decisionRules
     ];
   }
-  merged.processModelVersion = 8;
+  merged.processModelVersion = 9;
   return merged;
 }
 
@@ -797,14 +816,191 @@ function downloadTextFile(filename, content) {
   URL.revokeObjectURL(link.href);
 }
 
-function downloadStageTemplate(outputIndex) {
+function stageOutputList(project, stage) {
+  return [...stage.outputs, ...profileOutputs(project.standardProfile, stage.code)];
+}
+
+function stageDocumentId(projectId, stageCode, outputIndex) {
+  return `DOC-${projectId}-${stageCode}-${outputIndex}`;
+}
+
+function findStageDocument(projectId, stageCode, outputIndex, outputName) {
+  const id = stageDocumentId(projectId, stageCode, outputIndex);
+  return state.stageDocuments.find(item => item.id === id)
+    || state.stageDocuments.find(item => item.projectId === projectId && item.stageCode === stageCode && item.outputName === outputName);
+}
+
+function ensureStageDocument(outputIndex) {
   const project = currentProject();
   const stage = STAGES.find(item => item.code === selectedStageCode) || STAGES[0];
-  const outputs = [...stage.outputs, ...profileOutputs(project.standardProfile, stage.code)];
-  const outputName = outputs[Number(outputIndex)];
-  if (!outputName) return;
-  downloadTextFile(templateFileName(project, stage.code, outputName), buildOutputTemplate(project, stage.code, outputName));
-  showToast("阶段文件模板已下载");
+  const outputNumber = Number(outputIndex);
+  const outputName = stageOutputList(project, stage)[outputNumber];
+  if (!outputName) return null;
+  let documentItem = findStageDocument(project.id, stage.code, outputNumber, outputName);
+  if (!documentItem) {
+    documentItem = {
+      id: stageDocumentId(project.id, stage.code, outputNumber),
+      projectId: project.id,
+      stageCode: stage.code,
+      outputName,
+      outputIndex: outputNumber,
+      title: outputName,
+      status: "draft",
+      fields: {},
+      unresolved: "",
+      conclusion: "",
+      owner: "张家桤",
+      version: "V0.1",
+      createdAt: new Date().toISOString(),
+      updatedAt: "",
+      completedAt: ""
+    };
+    state.stageDocuments.unshift(documentItem);
+    saveState();
+  }
+  return documentItem;
+}
+
+function openStageTemplate(outputIndex) {
+  const documentItem = ensureStageDocument(outputIndex);
+  if (!documentItem) return;
+  selectedTemplateDocumentId = documentItem.id;
+  switchView("template");
+}
+
+function stageDocumentStatus(projectId, stageCode, outputIndex, outputName) {
+  const documentItem = findStageDocument(projectId, stageCode, outputIndex, outputName);
+  if (!documentItem) return { label: "未填写", className: "empty" };
+  if (documentItem.status === "complete") return { label: "已完成", className: "complete" };
+  const filled = Object.values(documentItem.fields || {}).filter(value => String(value || "").trim()).length;
+  return { label: filled ? "草稿" : "已建草稿", className: "draft" };
+}
+
+function renderTemplateEditor() {
+  const documentItem = state.stageDocuments.find(item => item.id === selectedTemplateDocumentId);
+  if (!documentItem) {
+    document.querySelector("#templateEditor").innerHTML = `<div class="empty-state section-block">没有找到该模板草稿</div>`;
+    return;
+  }
+  const project = state.projects.find(item => item.id === documentItem.projectId) || currentProject();
+  const stage = STAGES.find(item => item.code === documentItem.stageCode) || STAGES[0];
+  const fields = outputTemplateFields(documentItem.outputName, documentItem.stageCode);
+  const filledCount = fields.filter(field => String(documentItem.fields?.[field] || "").trim()).length;
+  const missingCount = Math.max(0, fields.length - filledCount);
+  const statusClass = documentItem.status === "complete" ? "complete" : "draft";
+  document.querySelector("#templateEditor").innerHTML = `
+    <div class="template-page">
+      <div class="template-header">
+        <div>
+          <button class="back-button" data-back-to-stage>← 返回阶段</button>
+          <p class="eyebrow">${escapeHtml(project.id)} · ${stage.code} ${escapeHtml(stage.name)}</p>
+          <h2>${escapeHtml(documentItem.outputName)}</h2>
+        </div>
+        <div class="template-status ${statusClass}">
+          <span>${documentItem.status === "complete" ? "已完成" : "草稿"}</span>
+          <strong>${filledCount}/${fields.length}</strong>
+          <small>${missingCount ? `还差${missingCount}项` : "正文已补齐"}</small>
+        </div>
+      </div>
+
+      <form id="templateForm" class="template-form">
+        <section class="template-section">
+          <div class="template-section-title">
+            <p class="eyebrow">基本信息</p>
+            <h3>输出文件信息</h3>
+          </div>
+          <div class="template-form-grid">
+            <label>项目编号<input value="${escapeHtml(project.id)}" disabled></label>
+            <label>项目名称<input value="${escapeHtml(project.name)}" disabled></label>
+            <label>阶段<input value="${escapeHtml(stage.code)} ${escapeHtml(stage.name)}" disabled></label>
+            <label>负责人<input name="owner" value="${escapeHtml(documentItem.owner)}"></label>
+            <label>版本<input name="version" value="${escapeHtml(documentItem.version)}"></label>
+            <label>状态<input value="${documentItem.status === "complete" ? "已完成" : "草稿"}" disabled></label>
+          </div>
+        </section>
+
+        <section class="template-section">
+          <div class="template-section-title">
+            <p class="eyebrow">正文</p>
+            <h3>${escapeHtml(STAGE_TEMPLATE_NOTES[stage.code]?.focus || "按阶段输出补齐内容")}</h3>
+          </div>
+          <div class="template-fields">
+            ${fields.map(field => `
+              <label class="template-field">
+                <span>${escapeHtml(field)}</span>
+                <textarea class="template-field-control" data-field-name="${escapeHtml(field)}" rows="4" placeholder="待确认的信息可以先写待确认、责任人和计划日期">${escapeHtml(documentItem.fields?.[field] || "")}</textarea>
+              </label>
+            `).join("")}
+          </div>
+        </section>
+
+        <section class="template-section">
+          <div class="template-fields two">
+            <label class="template-field">
+              <span>未确认问题</span>
+              <textarea name="unresolved" rows="5" placeholder="问题 / 影响 / 责任人 / 计划日期 / 状态">${escapeHtml(documentItem.unresolved)}</textarea>
+            </label>
+            <label class="template-field">
+              <span>结论与下一步</span>
+              <textarea name="conclusion" rows="5" placeholder="当前判断、是否带风险推进、下一步动作">${escapeHtml(documentItem.conclusion)}</textarea>
+            </label>
+          </div>
+        </section>
+
+        <div class="template-actions">
+          <button type="button" class="secondary-button" data-back-to-stage>返回阶段</button>
+          <button type="submit" class="secondary-button" data-template-action="draft">保存草稿</button>
+          <button type="submit" class="primary-button" data-template-action="complete">标记完成</button>
+        </div>
+      </form>
+    </div>
+  `;
+}
+
+function saveTemplateDocument(form, action = "draft") {
+  const documentItem = state.stageDocuments.find(item => item.id === selectedTemplateDocumentId);
+  if (!documentItem) return;
+  const data = new FormData(form);
+  const fields = {};
+  form.querySelectorAll(".template-field-control").forEach(control => {
+    fields[control.dataset.fieldName] = control.value.trim();
+  });
+  const conclusion = String(data.get("conclusion") || "").trim();
+  const hasBody = Object.values(fields).some(value => String(value || "").trim());
+  const wasComplete = documentItem.status === "complete";
+  if (action === "complete" && (!hasBody || !conclusion)) {
+    showToast("完成前至少填写一项正文和结论");
+    return;
+  }
+  documentItem.owner = String(data.get("owner") || "").trim() || "张家桤";
+  documentItem.version = String(data.get("version") || "").trim() || "V0.1";
+  documentItem.fields = fields;
+  documentItem.unresolved = String(data.get("unresolved") || "").trim();
+  documentItem.conclusion = conclusion;
+  documentItem.status = action === "complete" ? "complete" : "draft";
+  documentItem.updatedAt = new Date().toISOString();
+  if (action === "complete") {
+    documentItem.completedAt = new Date().toISOString();
+    const project = state.projects.find(item => item.id === documentItem.projectId);
+    const record = stageRecord(documentItem.projectId, documentItem.stageCode);
+    if (!record.completedOutputs.includes(documentItem.outputIndex)) record.completedOutputs.push(documentItem.outputIndex);
+    if (project) {
+      project.updatedAt = new Date().toISOString();
+      if (!wasComplete) {
+        state.timeline.unshift({
+          id: `TL-${Date.now()}`,
+          projectId: project.id,
+          date: new Date().toLocaleDateString("zh-CN"),
+          title: `${documentItem.stageCode}输出完成：${documentItem.outputName}`,
+          text: conclusion
+        });
+      }
+    }
+  }
+  saveState();
+  renderTemplateEditor();
+  renderDashboard();
+  showToast(action === "complete" ? "模板已标记完成" : "草稿已保存");
 }
 
 function accuracyLabel(value) {
@@ -847,14 +1043,16 @@ function switchView(view) {
     dashboard: ["项目总览", "全部项目与下一步行动"],
     work: ["行动中心", "逾期、等待、风险与阶段缺口"],
     projects: ["项目详情", `${project.id} · ${project.name}`],
+    template: ["模板填写", "阶段输出文件草稿"],
     inbox: ["资料收件箱", "照片与文件保存在本机"],
     review: ["每日复盘", "有评审结论才算完成"]
   };
-  document.querySelector("#pageTitle").textContent = titles[view][0];
-  document.querySelector("#pageEyebrow").textContent = titles[view][1];
+  document.querySelector("#pageTitle").textContent = titles[view]?.[0] || "项目驾驶舱";
+  document.querySelector("#pageEyebrow").textContent = titles[view]?.[1] || "";
   updateHeaderDate();
   document.querySelector(".sidebar").classList.remove("open");
   if (view === "projects") renderProjectDetail();
+  if (view === "template") renderTemplateEditor();
   if (view === "work") renderWorkCenter();
   if (view === "review") startReview();
   window.scrollTo({ top: 0, behavior: "smooth" });
@@ -1453,7 +1651,7 @@ function renderStageDetail() {
   const guide = STAGE_GUIDES[stage.code];
   const files = state.inbox.filter(item => item.projectId === project.id && item.stageCode === stage.code);
   const record = stageRecord(project.id, stage.code);
-  const applicableOutputs = [...stage.outputs, ...profileOutputs(project.standardProfile, stage.code)];
+  const applicableOutputs = stageOutputList(project, stage);
   const doneCount = record.completedChecks.length + record.completedOutputs.length;
   const totalCount = stage.checks.length + applicableOutputs.length;
   const completion = Math.round((doneCount / totalCount) * 100);
@@ -1471,18 +1669,24 @@ function renderStageDetail() {
     </div>
     <div class="stage-detail-grid">
       <div><strong>阶段门必做检查</strong>${stage.checks.map((check, index) => `<button class="gate-check ${record.completedChecks.includes(index) ? "done" : ""}" data-gate-check="${index}"><i>${record.completedChecks.includes(index) ? "✓" : ""}</i><span>${escapeHtml(check)}</span></button>`).join("")}</div>
-      <div><strong>受控输出文件</strong>${applicableOutputs.map((output, index) => `
+      <div><strong>受控输出文件</strong>${applicableOutputs.map((output, index) => {
+        const docStatus = stageDocumentStatus(project.id, stage.code, index, output);
+        return `
         <div class="output-row ${record.completedOutputs.includes(index) ? "done" : ""}">
-          <button class="output-item" data-output-check="${index}"><span>${escapeHtml(output)}</span><small>${record.completedOutputs.includes(index) ? "已具备" : "待建立"}</small></button>
-          <button class="template-button" data-template-output="${index}">模板</button>
+          <button class="output-item" data-output-check="${index}"><span>${escapeHtml(output)}</span><small>${record.completedOutputs.includes(index) ? "已具备" : "待建立"} · ${docStatus.label}</small></button>
+          <button class="template-button ${docStatus.className}" data-template-output="${index}">填写</button>
         </div>
-      `).join("")}</div>
+      `;
+      }).join("")}</div>
       <div><strong>当前已有资料</strong>${files.length ? files.map(file => `<button class="stage-file" data-open-file="${file.id}"><span>${escapeHtml(file.title)}</span><small>${escapeHtml(file.extension || file.type.toUpperCase())}</small></button>`).join("") : `<span class="empty-copy">尚未导入本阶段资料</span>`}</div>
     </div>
     <div class="template-pack">
       <div><strong>本阶段模板包</strong><span>${escapeHtml(STAGE_TEMPLATE_NOTES[stage.code]?.focus || "按输出文件逐项补齐。")}</span></div>
       <div class="template-list">
-        ${applicableOutputs.map((output, index) => `<button data-template-output="${index}">${escapeHtml(output)}</button>`).join("")}
+        ${applicableOutputs.map((output, index) => {
+          const docStatus = stageDocumentStatus(project.id, stage.code, index, output);
+          return `<button data-template-output="${index}">${escapeHtml(output)}<small>${docStatus.label}</small></button>`;
+        }).join("")}
       </div>
     </div>
     <div class="gate-decision">
@@ -1527,7 +1731,7 @@ function approveCurrentStage(decision) {
   const riskOwner = document.querySelector("#gateRiskOwner")?.value.trim();
   const closeDate = document.querySelector("#gateCloseDate")?.value;
   const targetDate = document.querySelector("#gateTargetDate")?.value;
-  const applicableOutputs = [...stage.outputs, ...profileOutputs(project.standardProfile, stage.code)];
+  const applicableOutputs = stageOutputList(project, stage);
 
   if (!owner) {
     showToast("请填写阶段负责人");
@@ -1949,7 +2153,7 @@ function mergeById(localItems = [], incomingItems = []) {
 
 function mergeSyncData(incoming) {
   const merged = { ...state, ...incoming };
-  for (const key of ["projects", "schemes", "tasks", "inbox", "timeline", "stagePredictions", "decisionRules"]) {
+  for (const key of ["projects", "schemes", "tasks", "inbox", "timeline", "stageDocuments", "stagePredictions", "decisionRules"]) {
     merged[key] = mergeById(state[key], incoming[key]);
   }
   merged.reviewResults = {
@@ -2167,7 +2371,9 @@ function bindEvents() {
     if (outputCheck) toggleStageItem("output", outputCheck.dataset.outputCheck);
 
     const templateButton = event.target.closest("[data-template-output]");
-    if (templateButton) downloadStageTemplate(templateButton.dataset.templateOutput);
+    if (templateButton) openStageTemplate(templateButton.dataset.templateOutput);
+
+    if (event.target.closest("[data-back-to-stage]")) switchView("projects");
 
     const gateDecision = event.target.closest("[data-gate-decision]");
     if (gateDecision) approveCurrentStage(gateDecision.dataset.gateDecision);
@@ -2201,6 +2407,11 @@ function bindEvents() {
         showToast("评审保存失败，请重试");
       }
     }
+    if (event.target.id === "templateForm") {
+      event.preventDefault();
+      const submitter = event.submitter;
+      saveTemplateDocument(event.target, submitter?.dataset.templateAction || "draft");
+    }
   });
 
   document.addEventListener("keydown", event => {
@@ -2223,6 +2434,7 @@ function renderAll() {
   renderProjectDetail();
   renderInbox();
   updateReviewStats();
+  if (currentView === "template") renderTemplateEditor();
 }
 
 function initialize() {

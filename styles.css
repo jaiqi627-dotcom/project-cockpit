@@ -690,6 +690,8 @@ button:disabled { cursor: default; opacity: .45; }
   font-size: 9px;
   font-weight: 800;
 }
+.template-button.draft { color: #9a6a00; background: #fff9e8; }
+.template-button.complete { color: var(--success); background: var(--success-soft); }
 .template-button:hover, .template-list button:hover { border-color: var(--accent); background: var(--accent-soft); }
 .gate-check {
   display: grid;
@@ -734,6 +736,84 @@ button:disabled { cursor: default; opacity: .45; }
   background: #fff;
   font-size: 10px;
   font-weight: 700;
+}
+.template-list small { display: block; margin-top: 3px; color: var(--muted); font-size: 8px; font-weight: 700; }
+.template-page { display: grid; gap: 14px; }
+.template-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+}
+.template-header h2 { margin: 8px 0 0; font-size: 22px; }
+.template-status {
+  min-width: 118px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface-soft);
+  text-align: right;
+}
+.template-status span, .template-status small { display: block; color: var(--muted); font-size: 10px; }
+.template-status strong { display: block; margin: 4px 0; font-size: 24px; }
+.template-status.complete { color: var(--success); background: var(--success-soft); }
+.template-form { display: grid; gap: 14px; }
+.template-section {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  overflow: hidden;
+}
+.template-section-title {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--line);
+  background: var(--surface-soft);
+}
+.template-section-title h3 { margin: 4px 0 0; font-size: 14px; line-height: 1.45; }
+.template-form-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  padding: 16px;
+}
+.template-form-grid label, .template-field {
+  display: grid;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 800;
+}
+.template-form-grid input, .template-field textarea {
+  width: 100%;
+  min-height: 38px;
+  padding: 9px;
+  border: 1px solid var(--line-strong);
+  border-radius: 5px;
+  color: var(--ink);
+  background: #fff;
+  font-size: 12px;
+  line-height: 1.55;
+}
+.template-form-grid input:disabled { color: var(--muted); background: #f4f7f6; }
+.template-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; padding: 16px; }
+.template-fields.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.template-field textarea { resize: vertical; }
+.template-field span { color: var(--ink); font-size: 11px; }
+.template-actions {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(8px);
 }
 .gate-decision { display: grid; grid-template-columns: 210px minmax(0, 1fr) minmax(0, 1.5fr); gap: 14px; padding: 16px; border-top: 1px solid var(--line); background: #fff; }
 .gate-status { padding: 12px; background: var(--surface-soft); }
@@ -1022,6 +1102,9 @@ button:disabled { cursor: default; opacity: .45; }
   .prediction-board { grid-template-columns: 1fr; }
   .gate-decision { grid-template-columns: 1fr; }
   .template-pack { grid-template-columns: 1fr; }
+  .template-header { flex-direction: column; }
+  .template-status { width: 100%; text-align: left; }
+  .template-form-grid, .template-fields, .template-fields.two { grid-template-columns: 1fr; }
   .gate-status, .gate-actions, .gate-history { grid-column: 1; }
   .gate-fields { grid-template-columns: 1fr; }
   .inbox-item { grid-template-columns: 82px minmax(0, 1fr) 80px; }
@@ -1043,6 +1126,9 @@ button:disabled { cursor: default; opacity: .45; }
   .input-action { grid-template-columns: 1fr; }
   .output-row { grid-template-columns: minmax(0, 1fr); }
   .template-button { width: calc(100% - 12px); margin: 0 6px 8px; }
+  .template-header h2 { font-size: 18px; }
+  .template-actions { flex-direction: column; }
+  .template-actions button { width: 100%; }
   .split-actions { grid-template-columns: 1fr 1fr; }
   .split-actions span { display: none; }
   .split-actions #syncNowButton { grid-column: 1 / -1; }
