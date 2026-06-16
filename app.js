@@ -106,6 +106,41 @@ const STAGE_GUIDES = {
   }
 };
 
+const STAGE_TEMPLATE_NOTES = {
+  G0: {
+    focus: "把客户输入翻译成可评审需求，优先补齐边界、验收方法和未确认事项。",
+    sections: ["客户与应用场景", "产品结构/尺寸/重量/成本目标", "性能与测试方法", "法规/外观/包装/交付要求", "未确认问题清单", "风险与下一步"]
+  },
+  G1: {
+    focus: "证明项目值得做、能做，并明确谁负责、什么时候交付、带什么风险推进。",
+    sections: ["项目目标与范围", "跨部门可行性结论", "资源与里程碑", "成本/产能/供应链假设", "初始风险", "立项结论"]
+  },
+  G2: {
+    focus: "把产品想法变成可制造、可验证、可报价的方案。",
+    sections: ["产品方案概述", "结构/BOM/材料方向", "关键性能与特殊特性", "设计风险", "验证计划", "目标成本与备选方案"]
+  },
+  G3: {
+    focus: "记录材料、工艺参数和实验结果，形成可重复制作样件的窗口。",
+    sections: ["材料来源与批次", "实验目的", "设备/模具/关键参数", "实验结果", "异常与失效分析", "工艺窗口与下一轮验证"]
+  },
+  G4: {
+    focus: "用产品样件证明方案满足需求，并把失效和客户反馈闭环。",
+    sections: ["样件状态", "验证项目与样件数量", "测试结果", "失效/偏差分析", "客户反馈", "设计冻结建议"]
+  },
+  G5: {
+    focus: "用接近量产条件验证一致性、良率、节拍、过程能力和控制计划。",
+    sections: ["试产条件", "过程流程与控制点", "检验/测量系统", "良率节拍产能", "问题清单", "量产准备结论"]
+  },
+  G6: {
+    focus: "把文件、参数、培训、控制计划和早期量产问题正式移交生产。",
+    sections: ["受控文件清单", "生产/质量/采购移交", "培训记录", "早期遏制计划", "未关闭风险", "量产放行结论"]
+  },
+  G7: {
+    focus: "确认项目目标达成，关闭遗留事项，并把经验回写到规则库。",
+    sections: ["目标达成情况", "质量/交付/成本表现", "客户反馈", "遗留问题", "经验教训", "规则库更新"]
+  }
+};
+
 const projectProfiles = {
   "NPD25024": {
     summary: "再生碳纤维锁鞋鞋底开发，当前聚焦静压力失效原因、结构改进及复测闭环。",
@@ -130,7 +165,7 @@ const projectProfiles = {
 };
 
 const seedData = {
-  processModelVersion: 6,
+  processModelVersion: 8,
   projects: [
     { id: "NPD25024", name: "再生碳纤维锁鞋鞋底", projectType: "npd", standardProfile: "general", stage: "G4 样件与设计验证", stageCode: "G4", stageNote: "失效分析与复测", progress: 61, status: "attention", deadline: "6月30日", next: "确认静压力失效原因并安排复测" },
     { id: "NPD25047", name: "匹克球拍面板", projectType: "npd", standardProfile: "general", stage: "G4 样件与设计验证", stageCode: "G4", stageNote: "单片成型验证", progress: 67, status: "attention", deadline: "6月20日", next: "验证重量、厚度和表面一致性" },
@@ -165,6 +200,35 @@ const seedData = {
     { id: "TL-4", projectId: "NPD26003-A", date: "4月30日", title: "完成初步评估报告", text: "面板单体未达到要求；CF/PP-UD + rCF/PP面层方向可继续。" }
   ],
   stageRecords: {},
+  stagePredictions: [
+    {
+      id: "PR-CF-20260616-01",
+      projectId: "NPD26003-A",
+      stageCode: "G0",
+      question: "当前最可能拖慢项目的卡点是什么？",
+      prediction: "粘结强度标准、完整铝框3D和轮迹局部加强范围若不能冻结，CAE与报价会反复调整。",
+      confidence: "medium",
+      dueDate: "",
+      lockedAt: "2026-06-16",
+      outcome: "",
+      accuracy: "",
+      retro: "",
+      ruleCandidate: "",
+      reviewedAt: ""
+    }
+  ],
+  decisionRules: [
+    {
+      id: "RULE-CF-20260616-01",
+      category: "需求冻结",
+      title: "结构轻量化项目先冻结测试边界",
+      rule: "客户目标包含重量、强度和成本时，必须先确认载荷、粘结、连接结构和供货边界，再推进完整报价。",
+      sourceProjectId: "NPD26003-A",
+      sourceStageCode: "G0",
+      strength: "待验证",
+      updatedAt: "2026-06-16"
+    }
+  ],
   reviewResults: { processes: 0, issues: 0, actions: 0, weekly: 0, output: "" }
 };
 
@@ -193,6 +257,7 @@ function normalizeState(saved) {
   const base = clone(seedData);
   const needsStageMigration = saved && Number(saved.processModelVersion || 0) < 4;
   const needsRampJuneMigration = !saved || Number(saved.processModelVersion || 0) < 7;
+  const needsPredictionMigration = !saved || Number(saved.processModelVersion || 0) < 8;
   const merged = saved ? { ...base, ...saved } : base;
   merged.projects = (merged.projects || base.projects).map(project => {
     let stageCode = project.stageCode || String(project.stage || "G0").split(" ")[0];
@@ -231,6 +296,31 @@ function normalizeState(saved) {
     projectId: item.projectId || "NPD26003-A"
   }));
   merged.stageRecords = merged.stageRecords || {};
+  merged.stagePredictions = (merged.stagePredictions || []).map(item => ({
+    id: item.id || `PR-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+    projectId: item.projectId || "NPD26003-A",
+    stageCode: item.stageCode || "G0",
+    question: item.question || "本阶段最可能出现什么偏差？",
+    prediction: item.prediction || "",
+    confidence: item.confidence || "medium",
+    dueDate: item.dueDate || "",
+    lockedAt: item.lockedAt || "",
+    outcome: item.outcome || "",
+    accuracy: item.accuracy || "",
+    retro: item.retro || "",
+    ruleCandidate: item.ruleCandidate || "",
+    reviewedAt: item.reviewedAt || ""
+  }));
+  merged.decisionRules = (merged.decisionRules || []).map(item => ({
+    id: item.id || `RULE-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+    category: item.category || "项目判断",
+    title: item.title || "未命名规则",
+    rule: item.rule || "",
+    sourceProjectId: item.sourceProjectId || "",
+    sourceStageCode: item.sourceStageCode || "",
+    strength: item.strength || "待验证",
+    updatedAt: item.updatedAt || ""
+  }));
   merged.reviewResults = { ...base.reviewResults, ...(merged.reviewResults || {}) };
   if (needsRampJuneMigration) {
     const ramp = merged.projects.find(project => project.id === "NPD26003-A");
@@ -259,7 +349,17 @@ function normalizeState(saved) {
     const juneTimeline = { id: "CF-TL-20260615", projectId: "NPD26003-A", date: "6月15日", title: "完成6月资料统一评估与归档", text: "确认20mm方案可推进，形成成本结论，并识别粘结、3D、轮迹区域及材料卡四类关键风险。" };
     if (!(merged.timeline || []).some(item => String(item.id) === juneTimeline.id)) merged.timeline = [juneTimeline, ...(merged.timeline || [])];
   }
-  merged.processModelVersion = 7;
+  if (needsPredictionMigration) {
+    merged.stagePredictions = [
+      ...seedData.stagePredictions.filter(item => !merged.stagePredictions.some(existing => String(existing.id) === String(item.id))),
+      ...merged.stagePredictions
+    ];
+    merged.decisionRules = [
+      ...seedData.decisionRules.filter(item => !merged.decisionRules.some(existing => String(existing.id) === String(item.id))),
+      ...merged.decisionRules
+    ];
+  }
+  merged.processModelVersion = 8;
   return merged;
 }
 
@@ -615,6 +715,100 @@ function stageRecord(projectId, stageCode) {
     };
   }
   return state.stageRecords[key];
+}
+
+function confidenceLabel(value) {
+  return { low: "低信心", medium: "中信心", high: "高信心" }[value] || "中信心";
+}
+
+function outputTemplateFields(outputName, stageCode) {
+  const name = String(outputName);
+  if (name.includes("FMEA")) return ["功能/过程步骤", "潜在失效模式", "失效影响", "严重度S", "失效原因", "发生度O", "现有控制", "探测度D", "RPN/AP", "改善措施", "责任人/日期"];
+  if (name.includes("风险")) return ["风险描述", "触发条件", "影响范围", "当前等级", "临时控制", "永久措施", "责任人", "关闭日期", "状态"];
+  if (name.includes("验证") || name.includes("测试") || name.includes("DVP")) return ["验证目的", "样件/材料状态", "测试标准", "测试条件", "判定标准", "结果记录", "异常说明", "结论与下一步"];
+  if (name.includes("成本") || name.includes("报价")) return ["方案范围", "材料成本", "工艺/人工", "模具/治具", "管理费/损耗", "物流/税费", "报价假设", "风险项"];
+  if (name.includes("需求") || name.includes("规格")) return ["客户原始输入", "转化后的工程要求", "目标值", "测试/验收方式", "责任人", "状态", "待澄清问题"];
+  if (name.includes("BOM") || name.includes("图纸") || name.includes("规范")) return ["版本号", "适用产品", "结构/材料说明", "关键尺寸", "关键性能", "变更记录", "未冻结项"];
+  if (name.includes("试产") || name.includes("量产")) return ["试产范围", "人机料法环测", "关键参数", "产出数量", "良率/节拍", "问题清单", "放行结论"];
+  if (name.includes("控制计划") || name.includes("SOP") || name.includes("检验")) return ["过程步骤", "产品/过程特性", "控制方法", "检验频率", "反应计划", "记录表单", "责任岗位"];
+  return STAGE_TEMPLATE_NOTES[stageCode]?.sections || ["背景", "输入", "分析", "结论", "下一步"];
+}
+
+function templateFileName(project, stageCode, outputName) {
+  return `${project.id}_${stageCode}_${String(outputName).replace(/[\\/:*?"<>|\\s]+/g, "_")}_模板.md`;
+}
+
+function buildOutputTemplate(project, stageCode, outputName) {
+  const stage = STAGES.find(item => item.code === stageCode);
+  const note = STAGE_TEMPLATE_NOTES[stageCode];
+  const fields = outputTemplateFields(outputName, stageCode);
+  return `# ${project.id} ${project.name} - ${stageCode} ${stageName(stageCode)} - ${outputName}
+
+## 使用说明
+
+- 本模板用于补齐阶段输出文件，不要求一次写完。
+- 不清楚的信息先写“待确认”，并在“未确认问题”中写责任人和日期。
+- 与客户邮件、照片、PPT、Excel相关的证据，在项目驾驶舱资料收件箱中关联到本阶段。
+
+## 阶段目标
+
+${stage?.objective || ""}
+
+## 本阶段填写重点
+
+${note?.focus || "补齐输入、过程、结论和下一步。"}
+
+## 基本信息
+
+| 项目 | 内容 |
+|---|---|
+| 项目编号 | ${project.id} |
+| 项目名称 | ${project.name} |
+| 阶段 | ${stageCode} ${stageName(stageCode)} |
+| 文件名称 | ${outputName} |
+| 负责人 | 张家桤 |
+| 日期 | ${new Date().toLocaleDateString("zh-CN")} |
+| 版本 | V0.1 |
+
+## 正文模板
+
+${fields.map(field => `### ${field}\n\n- \n`).join("\n")}
+
+## 未确认问题
+
+| 问题 | 影响 | 责任人 | 计划日期 | 状态 |
+|---|---|---|---|---|
+|  |  |  |  | 待确认 |
+
+## 结论
+
+- 当前判断：
+- 是否允许带风险进入下一步：
+- 下一步：
+`;
+}
+
+function downloadTextFile(filename, content) {
+  const blob = new Blob([content], { type: "text/markdown;charset=utf-8" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = filename;
+  link.click();
+  URL.revokeObjectURL(link.href);
+}
+
+function downloadStageTemplate(outputIndex) {
+  const project = currentProject();
+  const stage = STAGES.find(item => item.code === selectedStageCode) || STAGES[0];
+  const outputs = [...stage.outputs, ...profileOutputs(project.standardProfile, stage.code)];
+  const outputName = outputs[Number(outputIndex)];
+  if (!outputName) return;
+  downloadTextFile(templateFileName(project, stage.code, outputName), buildOutputTemplate(project, stage.code, outputName));
+  showToast("阶段文件模板已下载");
+}
+
+function accuracyLabel(value) {
+  return { hit: "命中", partial: "部分命中", miss: "未命中" }[value] || "待复盘";
 }
 
 function currentProject() {
@@ -1062,6 +1256,7 @@ function renderProjectDetail() {
     </button>`;
   }).join("");
   renderStageDetail();
+  renderPredictionBoard(project);
 
   const schemes = state.schemes.filter(scheme => scheme.projectId === project.id);
   document.querySelector("#schemeList").innerHTML = schemes.length ? schemes.map(scheme => `
@@ -1081,6 +1276,8 @@ function renderProjectDetail() {
     </article>
   `).join("") : `<div class="empty-state">当前项目暂无行动项。</div>`;
 
+  renderRuleLibrary(project);
+
   const evidence = state.inbox.filter(item => item.projectId === project.id);
   document.querySelector("#evidenceGrid").innerHTML = evidence.length ? evidence.map(item => `
     <article class="evidence-card ${item.fileId || item.src ? "interactive" : ""}" data-open-file="${item.id}">
@@ -1093,6 +1290,161 @@ function renderProjectDetail() {
   document.querySelector("#timeline").innerHTML = timeline.length ? timeline.map(item => `
     <div class="timeline-item"><div class="timeline-date">${escapeHtml(item.date)}</div><div class="timeline-marker"></div><div class="timeline-copy"><strong>${escapeHtml(item.title)}</strong><span>${escapeHtml(item.text)}</span></div></div>
   `).join("") : `<div class="empty-state">当前项目暂无时间线记录。</div>`;
+}
+
+function renderPredictionBoard(project) {
+  const predictions = state.stagePredictions
+    .filter(item => item.projectId === project.id)
+    .sort((a, b) => String(b.lockedAt || "").localeCompare(String(a.lockedAt || "")));
+  document.querySelector("#predictionBoard").innerHTML = predictions.length ? predictions.map(item => {
+    const locked = Boolean(item.lockedAt);
+    const reviewed = Boolean(item.outcome);
+    return `
+      <article class="prediction-card ${reviewed ? item.accuracy : locked ? "locked" : "draft"}">
+        <div class="prediction-top">
+          <span>${escapeHtml(item.stageCode)} ${stageName(item.stageCode)}</span>
+          <i>${reviewed ? accuracyLabel(item.accuracy) : locked ? "已锁定" : "草稿"}</i>
+        </div>
+        <strong>${escapeHtml(item.question)}</strong>
+        <p>${escapeHtml(item.prediction)}</p>
+        <div class="prediction-meta">
+          <span>${confidenceLabel(item.confidence)}</span>
+          <span>${item.dueDate ? `复盘节点 ${escapeHtml(item.dueDate)}` : "未设复盘节点"}</span>
+          <span>${item.lockedAt ? `锁定 ${escapeHtml(item.lockedAt)}` : "尚未锁定"}</span>
+        </div>
+        ${reviewed ? `<div class="prediction-retro"><b>实际结果</b>${escapeHtml(item.outcome)}<br><b>复盘</b>${escapeHtml(item.retro || "未补充")}</div>` : ""}
+        <div class="prediction-actions">
+          ${locked ? `<button class="secondary-button" data-review-prediction="${item.id}">${reviewed ? "补充复盘" : "填写复盘"}</button>` : `<button class="primary-button" data-lock-prediction="${item.id}">锁定预测</button>`}
+        </div>
+      </article>
+    `;
+  }).join("") : `<div class="empty-state">当前项目还没有阶段预测。建议在推进前先写下风险和节点判断。</div>`;
+}
+
+function renderRuleLibrary(project) {
+  const rules = state.decisionRules
+    .filter(rule => !rule.sourceProjectId || rule.sourceProjectId === project.id)
+    .slice(0, 8);
+  document.querySelector("#ruleLibrary").innerHTML = rules.length ? rules.map(rule => `
+    <article class="rule-card">
+      <div class="rule-top"><span>${escapeHtml(rule.category)}</span><i>${escapeHtml(rule.strength)}</i></div>
+      <strong>${escapeHtml(rule.title)}</strong>
+      <p>${escapeHtml(rule.rule)}</p>
+      <small>${rule.sourceProjectId ? `${escapeHtml(rule.sourceProjectId)} · ${escapeHtml(rule.sourceStageCode || "项目级")}` : "通用规则"}${rule.updatedAt ? ` · ${escapeHtml(rule.updatedAt)}` : ""}</small>
+    </article>
+  `).join("") : `<div class="empty-state">暂无判断规则。可以从阶段复盘里沉淀第一条。</div>`;
+}
+
+function addPrediction() {
+  const project = currentProject();
+  const stageCode = window.prompt("预测归属阶段，例如 G0-G7", selectedStageCode || project.stageCode);
+  if (!STAGES.some(stage => stage.code === stageCode)) {
+    showToast("阶段编号无效");
+    return;
+  }
+  const question = window.prompt("这次要预测的问题是什么？", "本阶段最可能卡住项目的因素是什么？");
+  if (!question?.trim()) return;
+  const prediction = window.prompt("先写下你的判断。后续锁定后就不再修改。");
+  if (!prediction?.trim()) return;
+  const confidence = window.prompt("信心等级：low / medium / high", "medium") || "medium";
+  const dueDate = window.prompt("计划什么时候复盘？可留空，例如 2026-06-21", "");
+  state.stagePredictions.unshift({
+    id: `PR-${Date.now()}`,
+    projectId: project.id,
+    stageCode,
+    question: question.trim(),
+    prediction: prediction.trim(),
+    confidence: ["low", "medium", "high"].includes(confidence) ? confidence : "medium",
+    dueDate: dueDate.trim(),
+    lockedAt: "",
+    outcome: "",
+    accuracy: "",
+    retro: "",
+    ruleCandidate: "",
+    reviewedAt: ""
+  });
+  saveState();
+  renderProjectDetail();
+  showToast("阶段预测已建立，请在执行前锁定");
+}
+
+function lockPrediction(id) {
+  const prediction = state.stagePredictions.find(item => String(item.id) === String(id));
+  if (!prediction || prediction.lockedAt) return;
+  prediction.lockedAt = new Date().toLocaleDateString("zh-CN");
+  state.timeline.unshift({
+    id: `TL-${Date.now()}`,
+    projectId: prediction.projectId,
+    date: prediction.lockedAt,
+    title: `锁定阶段预测：${prediction.stageCode}`,
+    text: `${prediction.question} ${prediction.prediction}`
+  });
+  saveState();
+  renderProjectDetail();
+  showToast("预测已锁定，后续只追加复盘");
+}
+
+function reviewPrediction(id) {
+  const prediction = state.stagePredictions.find(item => String(item.id) === String(id));
+  if (!prediction?.lockedAt) {
+    showToast("请先锁定预测");
+    return;
+  }
+  const outcome = window.prompt("实际发生了什么？", prediction.outcome || "");
+  if (!outcome?.trim()) return;
+  const accuracy = window.prompt("判断准确度：hit / partial / miss", prediction.accuracy || "partial") || "partial";
+  const retro = window.prompt("复盘：为什么判断对或错？下一次要注意什么？", prediction.retro || "");
+  const ruleCandidate = window.prompt("是否沉淀成一条判断规则？可留空", prediction.ruleCandidate || "");
+  prediction.outcome = outcome.trim();
+  prediction.accuracy = ["hit", "partial", "miss"].includes(accuracy) ? accuracy : "partial";
+  prediction.retro = retro.trim();
+  prediction.ruleCandidate = ruleCandidate.trim();
+  prediction.reviewedAt = new Date().toLocaleDateString("zh-CN");
+  if (ruleCandidate?.trim()) {
+    state.decisionRules.unshift({
+      id: `RULE-${Date.now()}`,
+      category: `${prediction.stageCode} ${stageName(prediction.stageCode)}`,
+      title: prediction.question,
+      rule: ruleCandidate.trim(),
+      sourceProjectId: prediction.projectId,
+      sourceStageCode: prediction.stageCode,
+      strength: prediction.accuracy === "hit" ? "已验证" : "待验证",
+      updatedAt: prediction.reviewedAt
+    });
+  }
+  state.timeline.unshift({
+    id: `TL-${Date.now()}`,
+    projectId: prediction.projectId,
+    date: prediction.reviewedAt,
+    title: `复盘阶段预测：${accuracyLabel(prediction.accuracy)}`,
+    text: `${prediction.question} 实际：${prediction.outcome}`
+  });
+  saveState();
+  renderProjectDetail();
+  showToast("预测复盘已保存");
+}
+
+function addRule() {
+  const project = currentProject();
+  const category = window.prompt("规则分类", "项目判断");
+  if (!category?.trim()) return;
+  const title = window.prompt("规则标题");
+  if (!title?.trim()) return;
+  const rule = window.prompt("规则内容：以后遇到类似项目时应该怎么判断？");
+  if (!rule?.trim()) return;
+  state.decisionRules.unshift({
+    id: `RULE-${Date.now()}`,
+    category: category.trim(),
+    title: title.trim(),
+    rule: rule.trim(),
+    sourceProjectId: project.id,
+    sourceStageCode: selectedStageCode,
+    strength: "待验证",
+    updatedAt: new Date().toLocaleDateString("zh-CN")
+  });
+  saveState();
+  renderProjectDetail();
+  showToast("判断规则已加入当前项目");
 }
 
 function renderStageDetail() {
@@ -1119,8 +1471,19 @@ function renderStageDetail() {
     </div>
     <div class="stage-detail-grid">
       <div><strong>阶段门必做检查</strong>${stage.checks.map((check, index) => `<button class="gate-check ${record.completedChecks.includes(index) ? "done" : ""}" data-gate-check="${index}"><i>${record.completedChecks.includes(index) ? "✓" : ""}</i><span>${escapeHtml(check)}</span></button>`).join("")}</div>
-      <div><strong>受控输出文件</strong>${applicableOutputs.map((output, index) => `<button class="output-item ${record.completedOutputs.includes(index) ? "done" : ""}" data-output-check="${index}"><span>${escapeHtml(output)}</span><small>${record.completedOutputs.includes(index) ? "已具备" : "待建立"}</small></button>`).join("")}</div>
+      <div><strong>受控输出文件</strong>${applicableOutputs.map((output, index) => `
+        <div class="output-row ${record.completedOutputs.includes(index) ? "done" : ""}">
+          <button class="output-item" data-output-check="${index}"><span>${escapeHtml(output)}</span><small>${record.completedOutputs.includes(index) ? "已具备" : "待建立"}</small></button>
+          <button class="template-button" data-template-output="${index}">模板</button>
+        </div>
+      `).join("")}</div>
       <div><strong>当前已有资料</strong>${files.length ? files.map(file => `<button class="stage-file" data-open-file="${file.id}"><span>${escapeHtml(file.title)}</span><small>${escapeHtml(file.extension || file.type.toUpperCase())}</small></button>`).join("") : `<span class="empty-copy">尚未导入本阶段资料</span>`}</div>
+    </div>
+    <div class="template-pack">
+      <div><strong>本阶段模板包</strong><span>${escapeHtml(STAGE_TEMPLATE_NOTES[stage.code]?.focus || "按输出文件逐项补齐。")}</span></div>
+      <div class="template-list">
+        ${applicableOutputs.map((output, index) => `<button data-template-output="${index}">${escapeHtml(output)}</button>`).join("")}
+      </div>
     </div>
     <div class="gate-decision">
       <div class="gate-status">
@@ -1586,7 +1949,7 @@ function mergeById(localItems = [], incomingItems = []) {
 
 function mergeSyncData(incoming) {
   const merged = { ...state, ...incoming };
-  for (const key of ["projects", "schemes", "tasks", "inbox", "timeline"]) {
+  for (const key of ["projects", "schemes", "tasks", "inbox", "timeline", "stagePredictions", "decisionRules"]) {
     merged[key] = mergeById(state[key], incoming[key]);
   }
   merged.reviewResults = {
@@ -1803,6 +2166,9 @@ function bindEvents() {
     const outputCheck = event.target.closest("[data-output-check]");
     if (outputCheck) toggleStageItem("output", outputCheck.dataset.outputCheck);
 
+    const templateButton = event.target.closest("[data-template-output]");
+    if (templateButton) downloadStageTemplate(templateButton.dataset.templateOutput);
+
     const gateDecision = event.target.closest("[data-gate-decision]");
     if (gateDecision) approveCurrentStage(gateDecision.dataset.gateDecision);
 
@@ -1811,6 +2177,12 @@ function bindEvents() {
 
     if (event.target.id === "backToProjects") switchView("dashboard");
     if (event.target.id === "addSchemeButton") addScheme();
+    if (event.target.id === "addPredictionButton") addPrediction();
+    if (event.target.id === "addRuleButton") addRule();
+    const lockPredictionButton = event.target.closest("[data-lock-prediction]");
+    if (lockPredictionButton) lockPrediction(lockPredictionButton.dataset.lockPrediction);
+    const reviewPredictionButton = event.target.closest("[data-review-prediction]");
+    if (reviewPredictionButton) reviewPrediction(reviewPredictionButton.dataset.reviewPrediction);
     if (event.target.id === "finishReviewButton") switchView("dashboard");
     if (event.target.id === "restartReviewButton") startReview();
     if (event.target.id === "skipReviewItem") {

@@ -35,7 +35,7 @@
         <button class="text-button" id="cloudSyncButton">云同步设置</button>
         <button class="text-button" id="exportButton">导出同步包</button>
         <button class="text-button" id="importButton">导入同步包</button>
-        <small class="app-version">Web / Android v0.8</small>
+        <small class="app-version">Web / Android v0.10</small>
         <input type="file" id="importFileInput" accept=".zjqsync,.json,application/json" hidden>
       </div>
     </aside>
@@ -260,6 +260,17 @@
           <div class="stage-detail-panel" id="stageDetailPanel"></div>
         </section>
 
+        <section class="section-block prediction-block">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">先预测，再复盘</p>
+              <h2>阶段预测与判断校准</h2>
+            </div>
+            <button class="small-button" id="addPredictionButton">＋ 新增预测</button>
+          </div>
+          <div class="prediction-board" id="predictionBoard"></div>
+        </section>
+
         <div class="detail-grid">
           <section class="section-block">
             <div class="section-heading">
@@ -282,6 +293,17 @@
             <div class="task-list" id="taskList"></div>
           </section>
         </div>
+
+        <section class="section-block rule-block">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">经验规则库</p>
+              <h2>从项目复盘沉淀判断规则</h2>
+            </div>
+            <button class="small-button" id="addRuleButton">＋ 新增规则</button>
+          </div>
+          <div class="rule-library" id="ruleLibrary"></div>
+        </section>
 
         <section class="section-block">
           <div class="section-heading">
