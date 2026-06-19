@@ -142,9 +142,21 @@ const STAGE_TEMPLATE_NOTES = {
 };
 
 const projectProfiles = {
+  "NPD25006": {
+    summary: "乒乓球桌夹芯板开发，原始资料含MC011/NPD26006编号，当前需把客户铺层、成本和模拟结论整理成阶段基线。",
+    readiness: 43
+  },
+  "NPD25007": {
+    summary: "捷安特/GIT2406鞋底开发，已有客户需求、3D和强度测试资料，当前重点补齐材料BOM、工艺方案和问题闭环。",
+    readiness: 46
+  },
   "NPD25024": {
     summary: "再生碳纤维锁鞋鞋底开发，当前聚焦静压力失效原因、结构改进及复测闭环。",
     readiness: 61
+  },
+  "NPD25041": {
+    summary: "回收材料车门项目，资料已归入阶段体系，当前需要明确产品边界、验证目标和工艺路线。",
+    readiness: 38
   },
   "NPD25047": {
     summary: "匹克球拍面板开发，当前验证单片成型后的重量、厚度、表面和批次一致性。",
@@ -161,17 +173,25 @@ const projectProfiles = {
   "NPD26011-A": {
     summary: "工具机曲柄材料与工艺开发，当前等待正式图纸并准备疲劳性能验证方案。",
     readiness: 29
+  },
+  "NTD25014": {
+    summary: "全碳散拼模板项目，已有报价与技术资料，当前需补齐需求基线、验证计划和量产移交资料。",
+    readiness: 41
   }
 };
 
 const seedData = {
-  processModelVersion: 9,
+  processModelVersion: 10,
   projects: [
+    { id: "NPD25006", name: "乒乓球桌", projectType: "npd", standardProfile: "general", stage: "G4 样件与设计验证", stageCode: "G4", stageNote: "模拟与成本资料整理", progress: 48, status: "attention", deadline: "待确认", next: "确认客户目标挠度、厚度和成本边界" },
+    { id: "NPD25007", name: "捷安特鞋底", projectType: "npd", standardProfile: "general", stage: "G4 样件与设计验证", stageCode: "G4", stageNote: "强度测试与图纸资料整理", progress: 46, status: "attention", deadline: "待确认", next: "补齐材料BOM、工艺方案和问题闭环" },
     { id: "NPD25024", name: "再生碳纤维锁鞋鞋底", projectType: "npd", standardProfile: "general", stage: "G4 样件与设计验证", stageCode: "G4", stageNote: "失效分析与复测", progress: 61, status: "attention", deadline: "6月30日", next: "确认静压力失效原因并安排复测" },
+    { id: "NPD25041", name: "回收材料车门", projectType: "npd", standardProfile: "general", stage: "G2 产品方案设计", stageCode: "G2", stageNote: "产品边界与验证目标待清晰", progress: 38, status: "waiting", deadline: "待确认", next: "确认客户需求、材料路线和验证项目" },
     { id: "NPD25047", name: "匹克球拍面板", projectType: "npd", standardProfile: "general", stage: "G4 样件与设计验证", stageCode: "G4", stageNote: "单片成型验证", progress: 67, status: "attention", deadline: "6月20日", next: "验证重量、厚度和表面一致性" },
     { id: "NPD25048", name: "迪卡侬板式网球拍", projectType: "npd", standardProfile: "general", stage: "G5 试产与过程验证", stageCode: "G5", stageNote: "等待客户样件", progress: 55, status: "waiting", deadline: "7月30日", next: "确认代工样件发货并准备重制" },
     { id: "NPD26003-A", name: "CF坡道", projectType: "npd", standardProfile: "general", stage: "G0 需求与机会", stageCode: "G0", stageNote: "需求澄清，G2/G3并行", progress: 45, status: "attention", deadline: "6月30日", next: "确认粘结标准、完整3D及轮迹加强区域" },
-    { id: "NPD26011-A", name: "工具机曲柄", projectType: "npd", standardProfile: "general", stage: "G2 产品方案设计", stageCode: "G2", stageNote: "图纸与验证规划", progress: 29, status: "waiting", deadline: "待确认", next: "取得正式图纸并明确疲劳验证方法" }
+    { id: "NPD26011-A", name: "工具机曲柄", projectType: "npd", standardProfile: "general", stage: "G2 产品方案设计", stageCode: "G2", stageNote: "图纸与验证规划", progress: 29, status: "waiting", deadline: "待确认", next: "取得正式图纸并明确疲劳验证方法" },
+    { id: "NTD25014", name: "全碳散拼模板", projectType: "npd", standardProfile: "general", stage: "G3 材料与工艺开发", stageCode: "G3", stageNote: "报价与工艺资料整理", progress: 41, status: "attention", deadline: "待确认", next: "整理需求基线、验证计划和量产文件缺口" }
   ],
   schemes: [
     { id: "SC-01", projectId: "NPD26003-A", name: "CFRP / XPS / CFRP + 铝框", status: "已完成初评", summary: "作为当前基准方案，加铝框后的CAE挠度结果满足目标。", readiness: "72%", next: "验证粘结强度" },
@@ -186,7 +206,11 @@ const seedData = {
     { id: 5, projectId: "NPD25024", title: "确认静压力失效原因并制定复测条件", meta: "研发 · 锁鞋鞋底", date: "本周", done: false },
     { id: 6, projectId: "NPD25047", title: "完成单片重量与厚度数据整理", meta: "工艺 · 匹克球拍", date: "6月20日", done: false },
     { id: 7, projectId: "NPD25048", title: "跟进代工样件发货", meta: "供应商 · 板式网球拍", date: "待回复", done: false },
-    { id: 8, projectId: "NPD26011-A", title: "取得正式图纸与载荷边界", meta: "客户 · 工具机曲柄", date: "待回复", done: false }
+    { id: 8, projectId: "NPD26011-A", title: "取得正式图纸与载荷边界", meta: "客户 · 工具机曲柄", date: "待回复", done: false },
+    { id: "LIB-NPD25006-01", projectId: "NPD25006", title: "确认乒乓球桌客户目标挠度、厚度、成本和测试边界", meta: "G0/G4 · 乒乓球桌", owner: "张家桤", priority: "high", status: "waiting", date: "待确认", done: false, acceptance: "需求边界写入G0待确定项，并能支撑G4模拟结论复核" },
+    { id: "LIB-NPD25007-01", projectId: "NPD25007", title: "补齐捷安特鞋底材料BOM、工艺流程和问题闭环", meta: "G2-G4 · 捷安特鞋底", owner: "张家桤", priority: "high", status: "open", date: "待安排", done: false, acceptance: "材料、工艺、测试报告和改善记录能在阶段资料中对应" },
+    { id: "LIB-NPD25041-01", projectId: "NPD25041", title: "确认回收材料车门产品边界、验证项目和工艺路线", meta: "G0-G2 · 回收材料车门", owner: "张家桤", priority: "medium", status: "waiting", date: "待确认", done: false, acceptance: "形成可执行的需求清单、方案说明和验证计划" },
+    { id: "LIB-NTD25014-01", projectId: "NTD25014", title: "整理全碳散拼模板需求基线、验证计划和量产移交缺口", meta: "G0-G7 · 全碳散拼模板", owner: "张家桤", priority: "medium", status: "open", date: "待安排", done: false, acceptance: "待确定项表中的缺口均有责任人和下一步" }
   ],
   inbox: [
     { id: 101, type: "photo", title: "坡道结构参考图", note: "客户方案中的铝框和折叠结构参考", projectId: "NPD26003-A", projectName: "CF坡道", stageCode: "G0", time: "今天 14:20", status: "pending", src: "assets/ramp-product.png" },
@@ -260,6 +284,7 @@ function normalizeState(saved) {
   const needsStageMigration = saved && Number(saved.processModelVersion || 0) < 4;
   const needsRampJuneMigration = !saved || Number(saved.processModelVersion || 0) < 7;
   const needsPredictionMigration = !saved || Number(saved.processModelVersion || 0) < 8;
+  const needsProjectLibraryMigration = !saved || Number(saved.processModelVersion || 0) < 10;
   const merged = saved ? { ...base, ...saved } : base;
   merged.projects = (merged.projects || base.projects).map(project => {
     let stageCode = project.stageCode || String(project.stage || "G0").split(" ")[0];
@@ -378,7 +403,41 @@ function normalizeState(saved) {
       ...merged.decisionRules
     ];
   }
-  merged.processModelVersion = 9;
+  if (needsProjectLibraryMigration) {
+    const missingProjects = seedData.projects
+      .filter(item => !merged.projects.some(existing => existing.id === item.id))
+      .map(project => ({
+        ...project,
+        summary: project.summary || projectProfiles[project.id]?.summary || `${project.name}项目开发与转量产管控。`,
+        readiness: project.readiness || projectProfiles[project.id]?.readiness || project.progress || 0
+      }));
+    if (missingProjects.length) merged.projects = [...missingProjects, ...merged.projects];
+
+    const libraryTasks = seedData.tasks.filter(item => String(item.id).startsWith("LIB-"));
+    merged.tasks = [
+      ...libraryTasks.filter(item => !merged.tasks.some(existing => String(existing.id) === String(item.id))),
+      ...merged.tasks
+    ];
+
+    const libraryInbox = [
+      { id: "LIB-IDX-NPD25006", type: "document", title: "NPD25006_项目资料索引.xlsx", note: "乒乓球桌项目阶段资料索引和待补文件入口", projectId: "NPD25006", projectName: "乒乓球桌", stageCode: "G4", time: "6月19日", status: "organized", extension: "XLSX" },
+      { id: "LIB-IDX-NPD25007", type: "document", title: "NPD25007_项目资料索引.xlsx", note: "捷安特鞋底项目阶段资料索引和待确定项入口", projectId: "NPD25007", projectName: "捷安特鞋底", stageCode: "G4", time: "6月19日", status: "organized", extension: "XLSX" },
+      { id: "LIB-IDX-NPD25041", type: "document", title: "NPD25041_项目资料索引.xlsx", note: "回收材料车门项目阶段资料索引和待确定项入口", projectId: "NPD25041", projectName: "回收材料车门", stageCode: "G2", time: "6月19日", status: "organized", extension: "XLSX" },
+      { id: "LIB-IDX-NPD25047", type: "document", title: "NPD25047_项目资料索引.xlsx", note: "匹克球拍面层项目阶段资料索引和待确定项入口", projectId: "NPD25047", projectName: "匹克球拍面层", stageCode: "G4", time: "6月19日", status: "organized", extension: "XLSX" },
+      { id: "LIB-IDX-NPD25048", type: "document", title: "NPD25048_项目资料索引.xlsx", note: "板式网球拍项目阶段资料索引和待确定项入口", projectId: "NPD25048", projectName: "板式网球拍", stageCode: "G5", time: "6月19日", status: "organized", extension: "XLSX" },
+      { id: "LIB-IDX-NPD26003-A", type: "document", title: "NPD26003-A_项目资料索引.xlsx", note: "CF坡道项目阶段资料索引和待确定项入口", projectId: "NPD26003-A", projectName: "CF坡道", stageCode: "G0", time: "6月19日", status: "organized", extension: "XLSX" },
+      { id: "LIB-IDX-NPD26011-A", type: "document", title: "NPD26011-A_项目资料索引.xlsx", note: "工具机曲柄项目阶段资料索引和待确定项入口", projectId: "NPD26011-A", projectName: "工具机曲柄", stageCode: "G2", time: "6月19日", status: "organized", extension: "XLSX" },
+      { id: "LIB-IDX-NTD25014", type: "document", title: "NTD25014_项目资料索引.xlsx", note: "全碳散拼模板项目阶段资料索引和待确定项入口", projectId: "NTD25014", projectName: "全碳散拼模板", stageCode: "G3", time: "6月19日", status: "organized", extension: "XLSX" }
+    ];
+    merged.inbox = [
+      ...libraryInbox.filter(item => !merged.inbox.some(existing => String(existing.id) === String(item.id))),
+      ...merged.inbox
+    ];
+
+    const libraryTimeline = { id: "LIB-TL-20260619", projectId: "NPD25024", date: "6月19日", title: "项目资料库按G0-G7体系批量整理", text: "已将其他项目按锁鞋样板建立阶段索引、需补草稿和待确定项，网页同步新增项目与行动入口。" };
+    if (!merged.timeline.some(item => String(item.id) === libraryTimeline.id)) merged.timeline = [libraryTimeline, ...merged.timeline];
+  }
+  merged.processModelVersion = 10;
   return merged;
 }
 
