@@ -181,7 +181,7 @@ const projectProfiles = {
 };
 
 const seedData = {
-  processModelVersion: 10,
+  processModelVersion: 11,
   projects: [
     { id: "NPD25006", name: "乒乓球桌", projectType: "npd", standardProfile: "general", stage: "G4 样件与设计验证", stageCode: "G4", stageNote: "模拟与成本资料整理", progress: 48, status: "attention", deadline: "待确认", next: "确认客户目标挠度、厚度和成本边界" },
     { id: "NPD25007", name: "捷安特鞋底", projectType: "npd", standardProfile: "general", stage: "G4 样件与设计验证", stageCode: "G4", stageNote: "强度测试与图纸资料整理", progress: 46, status: "attention", deadline: "待确认", next: "补齐材料BOM、工艺方案和问题闭环" },
@@ -257,6 +257,62 @@ const seedData = {
   reviewResults: { processes: 0, issues: 0, actions: 0, weekly: 0, output: "" }
 };
 
+const projectLibrarySync = {
+  stageDocuments: [
+    {
+      id: "DOC-LIB-NPD25024-G0-REQ-20260619",
+      projectId: "NPD25024",
+      stageCode: "G0",
+      outputName: "客户需求与特殊要求清单",
+      outputIndex: 0,
+      title: "客户需求与特殊要求清单",
+      status: "draft",
+      owner: "张家桤",
+      version: "V0.2",
+      createdAt: "2026-06-19",
+      updatedAt: "2026-06-19",
+      fields: {
+        "客户原始输入": "客户已确认方向：禧玛诺连云港实业有限公司；产品为自行车锁鞋鞋底，开发以RC7、43码、左右脚为主。资料来源：NPD25024_G0_客户需求确认表_整合草稿.xlsx。",
+        "转化后的工程要求": "围绕锁鞋鞋底静压力、低温冲击、吸水后强度、外观、图纸/加工、材料路线建立需求基线。图纸和加工边界目前标记为已确认，材料方向标记为材料无问题。",
+        "目标值": "静压力最终目标按≥90KGF；低温冲击条件按-25°C、2H、70cm、1kg冲击锤下未断裂；吸水条件按常温水中3个工作日后静压力>90KGF。",
+        "测试/验收方式": "需将客户测试与厂内测试的压头形式、跨距、加载位置统一；低温冲击和吸水测试需补充样品数量、判定标准和记录格式。",
+        "责任人": "张家桤",
+        "状态": "草稿，来自本地项目资料库同步；部分项目仍需客户/内部确认。",
+        "待澄清问题": "外观要求目前未给具体标准；客户测试与厂内测试方法需对齐；商务边界、年需求量和目标价仍需补充。"
+      },
+      unresolved: "1. 静压力是否统一按≥90KGF执行，角度≥30°是否同时满足。\n2. 客户测试与厂内测试压头形式、跨距、加载位置是否一致。\n3. 低温冲击样品数量、判定标准和记录格式需补齐。\n4. 蓝色外观区域、缎纹纹路和表面缺陷标准需客户确认。\n5. 年需求量、目标价、交付范围和报价口径需销售/客户补充。",
+      conclusion: "G0需求已由本地Excel初步补齐，当前可作为G1-G4工作的需求基线使用，但测试方法、外观标准和商务边界仍需继续关闭。"
+    },
+    {
+      id: "DOC-LIB-NPD25024-G0-QA-20260619",
+      projectId: "NPD25024",
+      stageCode: "G0",
+      outputName: "需求澄清问题清单",
+      outputIndex: 3,
+      title: "需求澄清问题清单",
+      status: "draft",
+      owner: "张家桤",
+      version: "V0.2",
+      createdAt: "2026-06-19",
+      updatedAt: "2026-06-19",
+      fields: {
+        "客户原始输入": "本清单来自NPD25024_G0_客户需求确认表_整合草稿.xlsx中的“需求澄清问题”页。",
+        "转化后的工程要求": "需要围绕性能标准、测试条件、低温冲击、外观要求、加工边界和商务边界逐项关闭。",
+        "目标值": "每个问题至少明确影响、责任人、建议确认方式和当前状态。",
+        "测试/验收方式": "通过客户邮件/会议确认、测试工装对比表、图纸冻结清单和报价边界表关闭。",
+        "责任人": "张家桤",
+        "状态": "Open",
+        "待澄清问题": "静压力标准、测试工装一致性、低温冲击条件、外观样板、加工边界、商务边界。"
+      },
+      unresolved: "静压力、测试工装、低温冲击、外观、加工和商务六类问题仍为Open。",
+      conclusion: "需求澄清问题已从Excel同步到网页，下一步建议逐项转为行动项并在客户沟通后关闭。"
+    }
+  ],
+  tasks: [
+    { id: "LIB-NPD25024-G0-REQ-01", projectId: "NPD25024", title: "关闭锁鞋G0需求澄清六类Open问题", meta: "G0 · 锁鞋鞋底", owner: "张家桤", priority: "high", status: "open", date: "待安排", done: false, acceptance: "静压力、测试工装、低温冲击、外观、加工、商务边界均有确认结论或风险放行说明" }
+  ]
+};
+
 let state = loadState();
 let cloudSettings = loadCloudSettings();
 let cloudSyncTimer = null;
@@ -285,6 +341,7 @@ function normalizeState(saved) {
   const needsRampJuneMigration = !saved || Number(saved.processModelVersion || 0) < 7;
   const needsPredictionMigration = !saved || Number(saved.processModelVersion || 0) < 8;
   const needsProjectLibraryMigration = !saved || Number(saved.processModelVersion || 0) < 10;
+  const needsLibraryContentSync = !saved || Number(saved.processModelVersion || 0) < 11;
   const merged = saved ? { ...base, ...saved } : base;
   merged.projects = (merged.projects || base.projects).map(project => {
     let stageCode = project.stageCode || String(project.stage || "G0").split(" ")[0];
@@ -437,7 +494,19 @@ function normalizeState(saved) {
     const libraryTimeline = { id: "LIB-TL-20260619", projectId: "NPD25024", date: "6月19日", title: "项目资料库按G0-G7体系批量整理", text: "已将其他项目按锁鞋样板建立阶段索引、需补草稿和待确定项，网页同步新增项目与行动入口。" };
     if (!merged.timeline.some(item => String(item.id) === libraryTimeline.id)) merged.timeline = [libraryTimeline, ...merged.timeline];
   }
-  merged.processModelVersion = 10;
+  if (needsLibraryContentSync) {
+    merged.stageDocuments = [
+      ...projectLibrarySync.stageDocuments.filter(item => !merged.stageDocuments.some(existing => String(existing.id) === String(item.id))),
+      ...merged.stageDocuments
+    ];
+    merged.tasks = [
+      ...projectLibrarySync.tasks.filter(item => !merged.tasks.some(existing => String(existing.id) === String(item.id))),
+      ...merged.tasks
+    ];
+    const syncTimeline = { id: "LIB-TL-20260619-G0-CONTENT", projectId: "NPD25024", date: "6月19日", title: "锁鞋G0已填内容同步到网页草稿", text: "客户名称、产品型号、静压力、低温冲击、吸水强度和需求澄清问题已从本地Excel同步为网页阶段草稿。" };
+    if (!merged.timeline.some(item => String(item.id) === syncTimeline.id)) merged.timeline = [syncTimeline, ...merged.timeline];
+  }
+  merged.processModelVersion = 11;
   return merged;
 }
 
