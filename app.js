@@ -159,8 +159,8 @@ const projectProfiles = {
     readiness: 38
   },
   "NPD25047": {
-    summary: "匹克球拍面板开发，当前验证单片成型后的重量、厚度、表面和批次一致性。",
-    readiness: 67
+    summary: "匹克球拍面层开发，当前围绕回收短碳纤维毡料面密度不均、针孔补涂增重和500×600供板重量控制做230/235g两档试制。",
+    readiness: 63
   },
   "NPD25048": {
     summary: "迪卡侬板式网球拍项目，当前等待代工样件并准备客户确认与必要的样件重制。",
@@ -181,13 +181,13 @@ const projectProfiles = {
 };
 
 const seedData = {
-  processModelVersion: 11,
+  processModelVersion: 12,
   projects: [
     { id: "NPD25006", name: "乒乓球桌", projectType: "npd", standardProfile: "general", stage: "G4 样件与设计验证", stageCode: "G4", stageNote: "模拟与成本资料整理", progress: 48, status: "attention", deadline: "待确认", next: "确认客户目标挠度、厚度和成本边界" },
     { id: "NPD25007", name: "捷安特鞋底", projectType: "npd", standardProfile: "general", stage: "G4 样件与设计验证", stageCode: "G4", stageNote: "强度测试与图纸资料整理", progress: 46, status: "attention", deadline: "待确认", next: "补齐材料BOM、工艺方案和问题闭环" },
     { id: "NPD25024", name: "再生碳纤维锁鞋鞋底", projectType: "npd", standardProfile: "general", stage: "G4 样件与设计验证", stageCode: "G4", stageNote: "失效分析与复测", progress: 61, status: "attention", deadline: "6月30日", next: "确认静压力失效原因并安排复测" },
     { id: "NPD25041", name: "回收材料车门", projectType: "npd", standardProfile: "general", stage: "G2 产品方案设计", stageCode: "G2", stageNote: "产品边界与验证目标待清晰", progress: 38, status: "waiting", deadline: "待确认", next: "确认客户需求、材料路线和验证项目" },
-    { id: "NPD25047", name: "匹克球拍面板", projectType: "npd", standardProfile: "general", stage: "G4 样件与设计验证", stageCode: "G4", stageNote: "单片成型验证", progress: 67, status: "attention", deadline: "6月20日", next: "验证重量、厚度和表面一致性" },
+    { id: "NPD25047", name: "匹克球拍面层", projectType: "npd", standardProfile: "general", stage: "G3 材料与工艺开发", stageCode: "G3", stageNote: "230/235g两档供板试制", progress: 63, status: "attention", deadline: "待确认", next: "制作4块510×610板并回填重量、厚度、针孔和补涂反馈" },
     { id: "NPD25048", name: "迪卡侬板式网球拍", projectType: "npd", standardProfile: "general", stage: "G5 试产与过程验证", stageCode: "G5", stageNote: "等待客户样件", progress: 55, status: "waiting", deadline: "7月30日", next: "确认代工样件发货并准备重制" },
     { id: "NPD26003-A", name: "CF坡道", projectType: "npd", standardProfile: "general", stage: "G0 需求与机会", stageCode: "G0", stageNote: "需求澄清，G2/G3并行", progress: 45, status: "attention", deadline: "6月30日", next: "确认粘结标准、完整3D及轮迹加强区域" },
     { id: "NPD26011-A", name: "工具机曲柄", projectType: "npd", standardProfile: "general", stage: "G2 产品方案设计", stageCode: "G2", stageNote: "图纸与验证规划", progress: 29, status: "waiting", deadline: "待确认", next: "取得正式图纸并明确疲劳验证方法" },
@@ -204,7 +204,7 @@ const seedData = {
     { id: 3, projectId: "NPD26003-A", title: "确认HRC供货范围与整件测试责任", meta: "客户 / 项目负责人", date: "待回复", done: false },
     { id: 4, projectId: "NPD26003-A", title: "完成加铝框方案CAE初评", meta: "CAE", date: "已完成", done: true },
     { id: 5, projectId: "NPD25024", title: "确认静压力失效原因并制定复测条件", meta: "研发 · 锁鞋鞋底", date: "本周", done: false },
-    { id: 6, projectId: "NPD25047", title: "完成单片重量与厚度数据整理", meta: "工艺 · 匹克球拍", date: "6月20日", done: false },
+    { id: 6, projectId: "NPD25047", title: "完成230/235g两档510×610供板试制", meta: "G3 工艺 · 匹克球拍面层", date: "待确认", done: false },
     { id: 7, projectId: "NPD25048", title: "跟进代工样件发货", meta: "供应商 · 板式网球拍", date: "待回复", done: false },
     { id: 8, projectId: "NPD26011-A", title: "取得正式图纸与载荷边界", meta: "客户 · 工具机曲柄", date: "待回复", done: false },
     { id: "LIB-NPD25006-01", projectId: "NPD25006", title: "确认乒乓球桌客户目标挠度、厚度、成本和测试边界", meta: "G0/G4 · 乒乓球桌", owner: "张家桤", priority: "high", status: "waiting", date: "待确认", done: false, acceptance: "需求边界写入G0待确定项，并能支撑G4模拟结论复核" },
@@ -260,6 +260,29 @@ const seedData = {
 const projectLibrarySync = {
   stageDocuments: [
     {
+      id: "DOC-LIB-NPD25047-G3-WEIGHT-20260621",
+      projectId: "NPD25047",
+      stageCode: "G3",
+      outputName: "板材配重试制记录表",
+      outputIndex: 2,
+      title: "匹克球拍面层230/235g板材配重试制记录表",
+      status: "draft",
+      owner: "张家桤",
+      version: "V0.1",
+      createdAt: "2026-06-21",
+      updatedAt: "2026-06-21",
+      fields: {
+        "问题背景": "回收短碳纤维针刺毡制成预浸料后，面密度不均导致0.45mm面层板重量和厚度易超差；针孔会造成喷涂空隙，后续补涂增加成品重量。",
+        "供应边界": "现阶段HRC只提供500×600面层板，蜂窝、胶、补涂、配件、印刷和喷砂由加工厂负责；这些后续重量只用于成品230/235g目标反算。",
+        "面积与利用率": "PDF最外轮廓为实际大小；单个面层面积约0.04859m²，500×600板可裁4片，理论利用率约64.8%。",
+        "目标值": "按成品230g下限、补涂15g和胶5g暂估：500×600供板目标约153g/张，510×610试制配重目标约159g/张；235g档510×610目标约175g/张。",
+        "试制计划": "制作4块510×610板：A1/A2为230g档，B1/B2为235g档；记录毡料、树脂/胶膜、预浸、模压后重量、裁切后重量、厚度、针孔和外观。",
+        "本地文件": "G3_材料与工艺开发/02_需补充文件/NPD25047_G3_需补充_匹克球拍面层230-235g板材配重试制记录表.xlsx"
+      },
+      unresolved: "1. 胶实际用量暂未知，需加工厂反馈或拆解称重确认。\n2. 补涂实际增重需按批次记录，当前按15g/支保守估算。\n3. 510×610板到500×600供板后的重量损失需实测验证。\n4. 230g档若外观针孔/强度风险偏高，需评估235g档作为更现实目标。",
+      conclusion: "本阶段进入G3工艺试制：先用230g与235g两档建立板材重量窗口，再用加工厂裁切和补涂反馈修正目标重量。"
+    },
+    {
       id: "DOC-LIB-NPD25024-G0-REQ-20260619",
       projectId: "NPD25024",
       stageCode: "G0",
@@ -309,6 +332,9 @@ const projectLibrarySync = {
     }
   ],
   tasks: [
+    { id: "LIB-NPD25047-G3-TRIAL-01", projectId: "NPD25047", title: "制作A1/A2两块230g档510×610试制板", meta: "G3 · 匹克球拍面层", owner: "张家桤", priority: "high", status: "open", date: "待确认", done: false, acceptance: "A1/A2记录毡料、预浸、模压后重量、裁切后500×600重量、厚度和针孔外观" },
+    { id: "LIB-NPD25047-G3-TRIAL-02", projectId: "NPD25047", title: "制作B1/B2两块235g档510×610试制板", meta: "G3 · 匹克球拍面层", owner: "张家桤", priority: "high", status: "open", date: "待确认", done: false, acceptance: "B1/B2记录同A档，并对比重量窗口与外观稳定性" },
+    { id: "LIB-NPD25047-G3-FEEDBACK-01", projectId: "NPD25047", title: "回收加工厂裁切、补涂和成品重量反馈", meta: "G4反馈 · 匹克球拍面层", owner: "张家桤", priority: "high", status: "waiting", date: "待加工厂反馈", done: false, acceptance: "取得单片裁切重量、补涂前后重量、胶重或粗胚拆解数据，并修正500×600供板目标" },
     { id: "LIB-NPD25024-G0-REQ-01", projectId: "NPD25024", title: "关闭锁鞋G0需求澄清六类Open问题", meta: "G0 · 锁鞋鞋底", owner: "张家桤", priority: "high", status: "open", date: "待安排", done: false, acceptance: "静压力、测试工装、低温冲击、外观、加工、商务边界均有确认结论或风险放行说明" }
   ]
 };
@@ -342,6 +368,7 @@ function normalizeState(saved) {
   const needsPredictionMigration = !saved || Number(saved.processModelVersion || 0) < 8;
   const needsProjectLibraryMigration = !saved || Number(saved.processModelVersion || 0) < 10;
   const needsLibraryContentSync = !saved || Number(saved.processModelVersion || 0) < 11;
+  const needsPickleballWeightSync = !saved || Number(saved.processModelVersion || 0) < 12;
   const merged = saved ? { ...base, ...saved } : base;
   merged.projects = (merged.projects || base.projects).map(project => {
     let stageCode = project.stageCode || String(project.stage || "G0").split(" ")[0];
@@ -506,7 +533,37 @@ function normalizeState(saved) {
     const syncTimeline = { id: "LIB-TL-20260619-G0-CONTENT", projectId: "NPD25024", date: "6月19日", title: "锁鞋G0已填内容同步到网页草稿", text: "客户名称、产品型号、静压力、低温冲击、吸水强度和需求澄清问题已从本地Excel同步为网页阶段草稿。" };
     if (!merged.timeline.some(item => String(item.id) === syncTimeline.id)) merged.timeline = [syncTimeline, ...merged.timeline];
   }
-  merged.processModelVersion = 11;
+  if (needsPickleballWeightSync) {
+    const pickleball = merged.projects.find(project => project.id === "NPD25047");
+    if (pickleball) {
+      pickleball.name = "匹克球拍面层";
+      pickleball.stageCode = "G3";
+      pickleball.stage = "G3 材料与工艺开发";
+      pickleball.stageNote = "230/235g两档供板试制";
+      pickleball.progress = Math.max(pickleball.progress || 0, 63);
+      pickleball.readiness = Math.max(pickleball.readiness || 0, 63);
+      pickleball.status = "attention";
+      pickleball.deadline = "待确认";
+      pickleball.next = "制作4块510×610板并回填重量、厚度、针孔和补涂反馈";
+      pickleball.summary = projectProfiles.NPD25047.summary;
+      pickleball.updatedAt = new Date().toISOString();
+    }
+    const pickleballDocs = projectLibrarySync.stageDocuments.filter(item => item.projectId === "NPD25047");
+    merged.stageDocuments = [
+      ...pickleballDocs.filter(item => !merged.stageDocuments.some(existing => String(existing.id) === String(item.id))),
+      ...merged.stageDocuments
+    ];
+    const pickleballTasks = projectLibrarySync.tasks.filter(item => item.projectId === "NPD25047");
+    merged.tasks = [
+      ...pickleballTasks.filter(item => !merged.tasks.some(existing => String(existing.id) === String(item.id))),
+      ...merged.tasks
+    ];
+    const pickleballInbox = { id: "LIB-XLSX-NPD25047-G3-WEIGHT-20260621", type: "document", title: "NPD25047_G3_需补充_匹克球拍面层230-235g板材配重试制记录表.xlsx", note: "A4/A3打印版，记录230/235g两档510×610试制板重量、厚度、针孔和反馈", projectId: "NPD25047", projectName: "匹克球拍面层", stageCode: "G3", time: "6月21日", status: "organized", extension: "XLSX" };
+    if (!merged.inbox.some(item => String(item.id) === pickleballInbox.id)) merged.inbox = [pickleballInbox, ...merged.inbox];
+    const pickleballTimeline = { id: "LIB-TL-NPD25047-WEIGHT-20260621", projectId: "NPD25047", date: "6月21日", title: "建立230/235g两档板材配重试制记录", text: "根据单面层PDF外轮廓面积反算供板目标：230g档510×610约159g，235g档约175g；记录表已归入G3需补充文件，并转为行动项。" };
+    if (!merged.timeline.some(item => String(item.id) === pickleballTimeline.id)) merged.timeline = [pickleballTimeline, ...merged.timeline];
+  }
+  merged.processModelVersion = 12;
   return merged;
 }
 
