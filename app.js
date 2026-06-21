@@ -181,7 +181,7 @@ const projectProfiles = {
 };
 
 const seedData = {
-  processModelVersion: 13,
+  processModelVersion: 14,
   projects: [
     { id: "NPD25006", name: "乒乓球桌", projectType: "npd", standardProfile: "general", stage: "G4 样件与设计验证", stageCode: "G4", stageNote: "大板试制与补测", progress: 56, status: "attention", deadline: "6月23日", next: "完成方案二/方案三周一补测并整理客户样品交付结论" },
     { id: "NPD25007", name: "捷安特鞋底", projectType: "npd", standardProfile: "general", stage: "G4 样件与设计验证", stageCode: "G4", stageNote: "强度测试与图纸资料整理", progress: 46, status: "attention", deadline: "待确认", next: "补齐材料BOM、工艺方案和问题闭环" },
@@ -243,6 +243,16 @@ const seedData = {
     }
   ],
   decisionRules: [
+    {
+      id: "RULE-SYNC-CONFIRM-20260621",
+      category: "资料同步",
+      title: "项目资料变更先询问是否同步驾驶舱",
+      rule: "当对话中出现新项目、客户反馈、试制测试、异常失效、重量厚度成本、记录表、SOP、周报或阶段结论变化时，先整理本地资料库，再询问是否同步到项目驾驶舱；用户确认后更新项目状态、阶段草稿、行动项、资料索引和时间线，并发布线上。",
+      sourceProjectId: "",
+      sourceStageCode: "G0-G7",
+      strength: "协作规则",
+      updatedAt: "2026-06-21"
+    },
     {
       id: "RULE-CF-20260616-01",
       category: "需求冻结",
@@ -396,6 +406,7 @@ function normalizeState(saved) {
   const needsLibraryContentSync = !saved || Number(saved.processModelVersion || 0) < 11;
   const needsPickleballWeightSync = !saved || Number(saved.processModelVersion || 0) < 12;
   const needsPingpongTrialSync = !saved || Number(saved.processModelVersion || 0) < 13;
+  const needsSyncConfirmRule = !saved || Number(saved.processModelVersion || 0) < 14;
   const merged = saved ? { ...base, ...saved } : base;
   merged.projects = (merged.projects || base.projects).map(project => {
     let stageCode = project.stageCode || String(project.stage || "G0").split(" ")[0];
@@ -626,7 +637,13 @@ function normalizeState(saved) {
     const pingpongTimeline = { id: "LIB-TL-NPD25006-TRIAL-20260621", projectId: "NPD25006", date: "6月21日", title: "归档方案二/方案三大板PU胶粘接试制资料", text: "已整理1390×800大板试制记录、方案二/方案三照片摘录和周一待补测试清单；下一步补齐验证数据并形成6月23日客户样品交付结论。" };
     if (!merged.timeline.some(item => String(item.id) === pingpongTimeline.id)) merged.timeline = [pingpongTimeline, ...merged.timeline];
   }
-  merged.processModelVersion = 13;
+  if (needsSyncConfirmRule) {
+    const syncConfirmRule = seedData.decisionRules.find(item => item.id === "RULE-SYNC-CONFIRM-20260621");
+    if (syncConfirmRule && !merged.decisionRules.some(item => String(item.id) === syncConfirmRule.id)) {
+      merged.decisionRules = [syncConfirmRule, ...merged.decisionRules];
+    }
+  }
+  merged.processModelVersion = 14;
   return merged;
 }
 
