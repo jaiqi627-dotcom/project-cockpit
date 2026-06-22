@@ -143,8 +143,8 @@ const STAGE_TEMPLATE_NOTES = {
 
 const projectProfiles = {
   "NPD25006": {
-    summary: "乒乓球桌夹芯板开发，原始资料含MC011/NPD26006编号，当前已完成小板弹跳验证与1390×800大板PU胶粘接试制，重点跟进方案二/方案三周一补测和客户样品交付。",
-    readiness: 56
+    summary: "乒乓球桌夹芯板开发，原始资料含MC011/NPD26006编号；方案2/方案3已完成1390×800大板PU胶粘接试制与6/22 G4静压/弹跳初步验证，方案2轻量化优先，方案3作为刚性备选。",
+    readiness: 68
   },
   "NPD25007": {
     summary: "捷安特/GIT2406鞋底开发，已有客户需求、3D和强度测试资料，当前重点补齐材料BOM、工艺方案和问题闭环。",
@@ -181,9 +181,9 @@ const projectProfiles = {
 };
 
 const seedData = {
-  processModelVersion: 14,
+  processModelVersion: 15,
   projects: [
-    { id: "NPD25006", name: "乒乓球桌", projectType: "npd", standardProfile: "general", stage: "G4 样件与设计验证", stageCode: "G4", stageNote: "大板试制与补测", progress: 56, status: "attention", deadline: "6月23日", next: "完成方案二/方案三周一补测并整理客户样品交付结论" },
+    { id: "NPD25006", name: "乒乓球桌", projectType: "npd", standardProfile: "general", stage: "G4 样件与设计验证", stageCode: "G4", stageNote: "方案2/3验证完成，待补测试细节", progress: 68, status: "attention", deadline: "6月23日", next: "按方案2优先发样，补齐弹跳具体高度、视频对应测试项和PU胶过程参数" },
     { id: "NPD25007", name: "捷安特鞋底", projectType: "npd", standardProfile: "general", stage: "G4 样件与设计验证", stageCode: "G4", stageNote: "强度测试与图纸资料整理", progress: 46, status: "attention", deadline: "待确认", next: "补齐材料BOM、工艺方案和问题闭环" },
     { id: "NPD25024", name: "再生碳纤维锁鞋鞋底", projectType: "npd", standardProfile: "general", stage: "G4 样件与设计验证", stageCode: "G4", stageNote: "失效分析与复测", progress: 61, status: "attention", deadline: "6月30日", next: "确认静压力失效原因并安排复测" },
     { id: "NPD25041", name: "回收材料车门", projectType: "npd", standardProfile: "general", stage: "G2 产品方案设计", stageCode: "G2", stageNote: "产品边界与验证目标待清晰", progress: 38, status: "waiting", deadline: "待确认", next: "确认客户需求、材料路线和验证项目" },
@@ -316,6 +316,29 @@ const projectLibrarySync = {
       conclusion: "本阶段进入G3工艺试制：先用230g与235g两档建立板材重量窗口，再用加工厂裁切和补涂反馈修正目标重量。"
     },
     {
+      id: "DOC-LIB-NPD25006-G4-WEEKLY-20260622",
+      projectId: "NPD25006",
+      stageCode: "G4",
+      outputName: "方案2/方案3大板验证周报",
+      outputIndex: 4,
+      title: "乒乓球台方案2/方案3大板试制与性能验证周报",
+      status: "draft",
+      owner: "张家桤",
+      version: "V0.2",
+      createdAt: "2026-06-22",
+      updatedAt: "2026-06-22",
+      fields: {
+        "问题背景": "客户样品需在6月23日发出，本次需基于方案2/方案3大板试制和6/22静压、弹跳验证形成发样建议。",
+        "验证对象": "方案2：GF+rCF+XPS，面密度3.74kg/m²，厚度19.2mm；方案3：GF+XPS，面密度3.88kg/m²，厚度19.5mm。",
+        "验证结果": "方案2与方案3均满足厚度<20mm、面密度<4kg/m²、80kg静压变形<15mm、撤载后可恢复；弹跳当前记录为>23cm。",
+        "推荐结论": "方案2更轻，建议作为发样优先方案；方案3静压变形8.71mm，刚性略优，作为备选保留。",
+        "已归档资料": "G4已归档6/22实验数据截图和视频、6/21成品外观与侧边照片，并输出3页以内周报PPT。",
+        "本地文件": "G4_样件与设计验证/00_阶段输出文件/NPD26006-A_G4_乒乓球桌方案2方案3周报_20260622.pptx"
+      },
+      unresolved: "1. 弹跳高度需补具体值，确认是否满足23-26cm完整窗口。\n2. 需标注3个视频分别对应静压、弹跳或撤载恢复。\n3. 80kg加载方式、支撑方式、压头/接触面积、保压时间和测试点仍需补齐。\n4. PU胶实际用量、混胶/开放/贴合时间、压合条件和裁边界面状态仍需回填。",
+      conclusion: "G4初步验证通过：两方案均满足当前核心性能目标；发样建议以方案2优先，方案3作为刚性备选，客户沟通前补齐弹跳具体高度和过程条件。"
+    },
+    {
       id: "DOC-LIB-NPD25024-G0-REQ-20260619",
       projectId: "NPD25024",
       stageCode: "G0",
@@ -368,6 +391,8 @@ const projectLibrarySync = {
     { id: "LIB-NPD25006-G3-TRIAL-01", projectId: "NPD25006", title: "补齐方案二/方案三周一测试数据", meta: "G3/G4 · 乒乓球桌", owner: "张家桤", priority: "high", status: "open", date: "周一", done: false, acceptance: "完成重量、厚度、外观、边缘、XPS压痕、胶层状态和弹跳/功能验证记录" },
     { id: "LIB-NPD25006-G3-TRIAL-02", projectId: "NPD25006", title: "回填1390×800大板PU胶粘接试制记录", meta: "G3 · 乒乓球桌", owner: "张家桤", priority: "high", status: "open", date: "样品发出前", done: false, acceptance: "记录上下面层、XPS初始厚度/重量、PU胶用量、开放时间、压合方式、压合时间和固化后结果" },
     { id: "LIB-NPD25006-G4-SAMPLE-01", projectId: "NPD25006", title: "形成6月23日客户样品交付结论", meta: "G4 · 乒乓球桌", owner: "张家桤", priority: "high", status: "open", date: "6月23日", done: false, acceptance: "明确推荐方案、样品状态、已验证项目、未关闭风险和客户说明口径" },
+    { id: "LIB-NPD25006-G4-BOUNCE-20260622", projectId: "NPD25006", title: "补齐弹跳测试具体高度与视频对应关系", meta: "G4 · 乒乓球桌", owner: "张家桤", priority: "high", status: "open", date: "客户沟通前", done: false, acceptance: "标注3个视频对应测试项目，补齐方案2/方案3弹跳高度具体值并确认是否落在23-26cm范围" },
+    { id: "LIB-NPD25006-G4-PARAM-20260622", projectId: "NPD25006", title: "回填80kg静压与PU胶过程关键参数", meta: "G3/G4 · 乒乓球桌", owner: "张家桤", priority: "medium", status: "open", date: "样品发出前后", done: false, acceptance: "补齐支撑方式、加载面积、保压时间、测试点、PU胶实际用量、开放时间、压合条件和裁边界面检查" },
     { id: "LIB-NPD25047-G3-TRIAL-01", projectId: "NPD25047", title: "制作A1/A2两块230g档510×610试制板", meta: "G3 · 匹克球拍面层", owner: "张家桤", priority: "high", status: "open", date: "待确认", done: false, acceptance: "A1/A2记录毡料、预浸、模压后重量、裁切后500×600重量、厚度和针孔外观" },
     { id: "LIB-NPD25047-G3-TRIAL-02", projectId: "NPD25047", title: "制作B1/B2两块235g档510×610试制板", meta: "G3 · 匹克球拍面层", owner: "张家桤", priority: "high", status: "open", date: "待确认", done: false, acceptance: "B1/B2记录同A档，并对比重量窗口与外观稳定性" },
     { id: "LIB-NPD25047-G3-FEEDBACK-01", projectId: "NPD25047", title: "回收加工厂裁切、补涂和成品重量反馈", meta: "G4反馈 · 匹克球拍面层", owner: "张家桤", priority: "high", status: "waiting", date: "待加工厂反馈", done: false, acceptance: "取得单片裁切重量、补涂前后重量、胶重或粗胚拆解数据，并修正500×600供板目标" },
@@ -407,6 +432,7 @@ function normalizeState(saved) {
   const needsPickleballWeightSync = !saved || Number(saved.processModelVersion || 0) < 12;
   const needsPingpongTrialSync = !saved || Number(saved.processModelVersion || 0) < 13;
   const needsSyncConfirmRule = !saved || Number(saved.processModelVersion || 0) < 14;
+  const needsPingpongG4WeeklySync = !saved || Number(saved.processModelVersion || 0) < 15;
   const merged = saved ? { ...base, ...saved } : base;
   merged.projects = (merged.projects || base.projects).map(project => {
     let stageCode = project.stageCode || String(project.stage || "G0").split(" ")[0];
@@ -637,13 +663,52 @@ function normalizeState(saved) {
     const pingpongTimeline = { id: "LIB-TL-NPD25006-TRIAL-20260621", projectId: "NPD25006", date: "6月21日", title: "归档方案二/方案三大板PU胶粘接试制资料", text: "已整理1390×800大板试制记录、方案二/方案三照片摘录和周一待补测试清单；下一步补齐验证数据并形成6月23日客户样品交付结论。" };
     if (!merged.timeline.some(item => String(item.id) === pingpongTimeline.id)) merged.timeline = [pingpongTimeline, ...merged.timeline];
   }
+  if (needsPingpongG4WeeklySync) {
+    const pingpong = merged.projects.find(project => project.id === "NPD25006");
+    if (pingpong) {
+      pingpong.stageCode = "G4";
+      pingpong.stage = "G4 样件与设计验证";
+      pingpong.stageNote = "方案2/3验证完成，待补测试细节";
+      pingpong.progress = Math.max(pingpong.progress || 0, 68);
+      pingpong.readiness = Math.max(pingpong.readiness || 0, 68);
+      pingpong.status = "attention";
+      pingpong.deadline = "6月23日";
+      pingpong.next = "按方案2优先发样，补齐弹跳具体高度、视频对应测试项和PU胶过程参数";
+      pingpong.summary = projectProfiles.NPD25006.summary;
+      pingpong.updatedAt = new Date().toISOString();
+    }
+    const pingpongG4Docs = projectLibrarySync.stageDocuments.filter(item => item.id === "DOC-LIB-NPD25006-G4-WEEKLY-20260622");
+    merged.stageDocuments = [
+      ...pingpongG4Docs.filter(item => !merged.stageDocuments.some(existing => String(existing.id) === String(item.id))),
+      ...merged.stageDocuments
+    ];
+    const pingpongG4Tasks = projectLibrarySync.tasks.filter(item => [
+      "LIB-NPD25006-G4-BOUNCE-20260622",
+      "LIB-NPD25006-G4-PARAM-20260622"
+    ].includes(String(item.id)));
+    merged.tasks = [
+      ...pingpongG4Tasks.filter(item => !merged.tasks.some(existing => String(existing.id) === String(item.id))),
+      ...merged.tasks
+    ];
+    const pingpongG4Inbox = [
+      { id: "LIB-PPT-NPD25006-G4-WEEKLY-20260622", type: "document", title: "NPD26006-A_G4_乒乓球桌方案2方案3周报_20260622.pptx", note: "3页以内周报，汇总方案2/方案3试制过程、成品照片、静压/弹跳验证和待补项", projectId: "NPD25006", projectName: "乒乓球桌", stageCode: "G4", time: "6月22日", status: "organized", extension: "PPTX" },
+      { id: "LIB-PHOTO-NPD25006-G4-PRODUCT-20260621", type: "photo", title: "20260621_成品板外观与侧边照片", note: "成品板正面、侧边界面和局部放大证据已归档到G4", projectId: "NPD25006", projectName: "乒乓球桌", stageCode: "G4", time: "6月21日", status: "organized", extension: "JPG" },
+      { id: "LIB-VIDEO-NPD25006-G4-TEST-20260622", type: "video", title: "20260622_方案2方案3静压与弹跳验证视频", note: "3段1080×1920视频，需补标各自对应静压、弹跳或撤载恢复测试", projectId: "NPD25006", projectName: "乒乓球桌", stageCode: "G4", time: "6月22日", status: "organized", extension: "MP4" }
+    ];
+    merged.inbox = [
+      ...pingpongG4Inbox.filter(item => !merged.inbox.some(existing => String(existing.id) === String(item.id))),
+      ...merged.inbox
+    ];
+    const pingpongG4Timeline = { id: "LIB-TL-NPD25006-G4-WEEKLY-20260622", projectId: "NPD25006", date: "6月22日", title: "完成方案2/方案3大板G4验证周报", text: "6/22验证显示两方案均满足厚度、面密度、80kg静压变形和撤载恢复目标；方案2更轻建议优先发样，方案3作为刚性备选。仍需补齐弹跳具体高度、视频对应测试项和PU胶过程参数。" };
+    if (!merged.timeline.some(item => String(item.id) === pingpongG4Timeline.id)) merged.timeline = [pingpongG4Timeline, ...merged.timeline];
+  }
   if (needsSyncConfirmRule) {
     const syncConfirmRule = seedData.decisionRules.find(item => item.id === "RULE-SYNC-CONFIRM-20260621");
     if (syncConfirmRule && !merged.decisionRules.some(item => String(item.id) === syncConfirmRule.id)) {
       merged.decisionRules = [syncConfirmRule, ...merged.decisionRules];
     }
   }
-  merged.processModelVersion = 14;
+  merged.processModelVersion = 15;
   return merged;
 }
 
